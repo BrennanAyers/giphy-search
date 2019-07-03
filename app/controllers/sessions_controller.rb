@@ -17,5 +17,15 @@ class SessionsController < ApplicationController
     oauth_response = Faraday.get("https://api.github.com/user?access_token=#{token}")
 
     auth = JSON.parse(oauth_response.body)
+
+    user          = User.find_or_create_by(uid: auth["id"])
+    user.username = auth["login"]
+    user.uid      = auth["id"]
+    user.token    = token
+    user.save
+
+    session[:user_id] = user.id
+
+    redirect_to dashboard_path
   end
 end
